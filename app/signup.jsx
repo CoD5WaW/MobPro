@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useAuth } from './../hooks/AuthContext';
 import { useRouter } from 'expo-router';
 
@@ -32,40 +32,98 @@ const SignupScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Sign Up</Text>
+      <Text style={styles.header}>Create an Account</Text>
+      <Text style={styles.subHeader}>Sign up to get started</Text>
+      
       <TextInput
         style={styles.input}
         placeholder="Email"
+        placeholderTextColor="#A0A0A0"
         value={email}
         onChangeText={setEmail}
       />
       <TextInput
         style={styles.input}
         placeholder="Password"
-        value={password}
+        placeholderTextColor="#A0A0A0"
         secureTextEntry
+        value={password}
         onChangeText={setPassword}
       />
       <TextInput
         style={styles.input}
         placeholder="Confirm Password"
-        value={confirmPassword}
+        placeholderTextColor="#A0A0A0"
         secureTextEntry
+        value={confirmPassword}
         onChangeText={setConfirmPassword}
       />
-      <Button title="Sign Up" onPress={handleSignup} />
-      <Text style={styles.loginText} onPress={() => router.push('/login')}>
-        Already have an account? Log in
+      
+      <TouchableOpacity style={styles.button} onPress={handleSignup}>
+        <Text style={styles.buttonText}>Sign Up</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.loginText}>
+        Already have an account?{' '}
+        <Text style={styles.loginLink} onPress={() => router.push('/login')}>
+          Log in
+        </Text>
       </Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 16 },
-  header: { fontSize: 24, textAlign: 'center', marginBottom: 20 },
-  input: { height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 12, paddingHorizontal: 8 },
-  loginText: { color: 'blue', textAlign: 'center', marginTop: 16 },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: '#F5F5F5',
+  },
+  header: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#333',
+    marginBottom: 8,
+  },
+  subHeader: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#666',
+    marginBottom: 20,
+  },
+  input: {
+    height: 50,
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    fontSize: 16,
+    borderColor: '#DDD',
+    borderWidth: 1,
+  },
+  button: {
+    backgroundColor: '#0066FF',
+    paddingVertical: 15,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  loginText: {
+    fontSize: 14,
+    textAlign: 'center',
+    color: '#333',
+  },
+  loginLink: {
+    color: '#0066FF',
+    fontWeight: 'bold',
+  },
 });
 
 export default SignupScreen;

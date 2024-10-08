@@ -20,7 +20,7 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Welcome Back</Text>
+      <Text style={styles.header}>Login</Text>
       <Text style={styles.subHeader}>Log in to your account</Text>
       
       <TextInput

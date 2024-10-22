@@ -7,26 +7,55 @@ const SignupScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [passErrorMessage, setPassErrorMessage] = useState('');
+  const [emailErrorMessage, setEmailErrorMessage] = useState('');
+  const [confirmPassErrorMessage, setConfirmPassErrorMessage] = useState('');
+  
   const { signup } = useAuth(); // Get signup function from context
   const router = useRouter();
 
   const handleSignup = async () => {
-    if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+    setErrorMessage('');
+    setPassErrorMessage('');
+    setEmailErrorMessage('');
+    setConfirmPassErrorMessage('');
+    setSuccessMessage('');
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)$/;
+    
+    if (!emailRegex.test(email)) {
+      setEmailErrorMessage('* Email must be either a Gmail or Yahoo address.');
       return;
     }
-    
+
+    if (password <= 7) {
+      setPassErrorMessage("* Passwords should be 8 characters long");
+      return;
+    }
+
     if (!email || !password || !confirmPassword) {
-      Alert.alert('Error', 'All fields are required');
+      setErrorMessage('* All fields are required');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setConfirmPassErrorMessage("* Passwords don't match!");
       return;
     }
 
     const success = await signup(email, password);
+
     if (success) {
-      Alert.alert('Success', 'Account created!');
+      setSuccessMessage('Success! Account successfully created!');
+      Alert.alert('Success', 'Account successfully created!'); // Optional alert
+
+      // Navigate to login screen
       router.push('/login');
     } else {
       Alert.alert('Error', 'Something went wrong');
+      setErrorMessage('Invalid email or password.');
     }
   };
 
@@ -34,6 +63,9 @@ const SignupScreen = () => {
     <View style={styles.container}>
       <Text style={styles.header}>Create an Account</Text>
       <Text style={styles.subHeader}>Sign up to get started</Text>
+
+      {successMessage ? <Text style={styles.successText}>{successMessage}</Text> : null}
+      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
       
       <TextInput
         style={styles.input}
@@ -42,6 +74,8 @@ const SignupScreen = () => {
         value={email}
         onChangeText={setEmail}
       />
+      {emailErrorMessage ? <Text style={styles.errorText}>{emailErrorMessage}</Text> : null}
+
       <TextInput
         style={styles.input}
         placeholder="Password"
@@ -50,6 +84,8 @@ const SignupScreen = () => {
         value={password}
         onChangeText={setPassword}
       />
+      {passErrorMessage ? <Text style={styles.errorText}>{passErrorMessage}</Text> : null}
+
       <TextInput
         style={styles.input}
         placeholder="Confirm Password"
@@ -58,7 +94,8 @@ const SignupScreen = () => {
         value={confirmPassword}
         onChangeText={setConfirmPassword}
       />
-      
+      {confirmPassErrorMessage ? <Text style={styles.errorText}>{confirmPassErrorMessage}</Text> : null}
+
       <TouchableOpacity style={styles.button} onPress={handleSignup}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
@@ -92,6 +129,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#666',
     marginBottom: 20,
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 12,
+  },
+  successText: {
+    color: 'green',
+    marginBottom: 12,
   },
   input: {
     height: 50,

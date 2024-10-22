@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const { login } = useAuth(); // Get login function from context
   const router = useRouter();
 
@@ -14,7 +15,7 @@ const LoginScreen = () => {
     if (success) {
       router.push('/home');
     } else {
-      Alert.alert('Error', 'Invalid credentials');
+      setErrorMessage('Invalid credentials');
     }
   };
 
@@ -23,6 +24,8 @@ const LoginScreen = () => {
       <Text style={styles.header}>Login</Text>
       <Text style={styles.subHeader}>Log in to your account</Text>
       
+      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -66,6 +69,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#333',
     marginBottom: 8,
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 12,
   },
   subHeader: {
     fontSize: 16,

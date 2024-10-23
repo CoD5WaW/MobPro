@@ -55,9 +55,7 @@ export const AuthProvider = ({ children }) => {
   // Logout function
   const logout = async () => {
     try {
-      await AsyncStorage.removeItem('email');
-      await AsyncStorage.removeItem('password');
-      setUser(null);
+      setUser(null); // Reset user state to null (log out the user)
     } catch (e) {
       console.error('Failed to log out');
     }

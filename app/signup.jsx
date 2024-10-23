@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useAuth } from './../hooks/AuthContext';
 import { useRouter } from 'expo-router';
 
@@ -7,65 +7,168 @@ const SignupScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [passErrorMessage, setPassErrorMessage] = useState('');
+  const [emailErrorMessage, setEmailErrorMessage] = useState('');
+  const [confirmPassErrorMessage, setConfirmPassErrorMessage] = useState('');
+  
   const { signup } = useAuth(); // Get signup function from context
   const router = useRouter();
 
   const handleSignup = async () => {
-    if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+    setErrorMessage('');
+    setPassErrorMessage('');
+    setEmailErrorMessage('');
+    setConfirmPassErrorMessage('');
+    setSuccessMessage('');
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)$/;
+    
+    if (!emailRegex.test(email)) {
+      setEmailErrorMessage('* Email must be either a Gmail or Yahoo address.');
       return;
     }
-    
+
+    if (password <= 7) {
+      setPassErrorMessage("* Passwords should be 8 characters long");
+      return;
+    }
+
     if (!email || !password || !confirmPassword) {
-      Alert.alert('Error', 'All fields are required');
+      setErrorMessage('* All fields are required');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setConfirmPassErrorMessage("* Passwords don't match!");
       return;
     }
 
     const success = await signup(email, password);
+
     if (success) {
-      Alert.alert('Success', 'Account created!');
+      setSuccessMessage('Success! Account successfully created!');
+      Alert.alert('Success', 'Account successfully created!'); // Optional alert
+
+      // Navigate to login screen
       router.push('/login');
     } else {
       Alert.alert('Error', 'Something went wrong');
+      setErrorMessage('Invalid email or password.');
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Sign Up</Text>
+      <Text style={styles.header}>Create an Account</Text>
+      <Text style={styles.subHeader}>Sign up to get started</Text>
+
+      {successMessage ? <Text style={styles.successText}>{successMessage}</Text> : null}
+      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+      
       <TextInput
         style={styles.input}
         placeholder="Email"
+        placeholderTextColor="#A0A0A0"
         value={email}
         onChangeText={setEmail}
       />
+      {emailErrorMessage ? <Text style={styles.errorText}>{emailErrorMessage}</Text> : null}
+
       <TextInput
         style={styles.input}
         placeholder="Password"
-        value={password}
+        placeholderTextColor="#A0A0A0"
         secureTextEntry
+        value={password}
         onChangeText={setPassword}
       />
+      {passErrorMessage ? <Text style={styles.errorText}>{passErrorMessage}</Text> : null}
+
       <TextInput
         style={styles.input}
         placeholder="Confirm Password"
-        value={confirmPassword}
+        placeholderTextColor="#A0A0A0"
         secureTextEntry
+        value={confirmPassword}
         onChangeText={setConfirmPassword}
       />
-      <Button title="Sign Up" onPress={handleSignup} />
-      <Text style={styles.loginText} onPress={() => router.push('/login')}>
-        Already have an account? Log in
+      {confirmPassErrorMessage ? <Text style={styles.errorText}>{confirmPassErrorMessage}</Text> : null}
+
+      <TouchableOpacity style={styles.button} onPress={handleSignup}>
+        <Text style={styles.buttonText}>Sign Up</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.loginText}>
+        Already have an account?{' '}
+        <Text style={styles.loginLink} onPress={() => router.push('/login')}>
+          Log in
+        </Text>
       </Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 16 },
-  header: { fontSize: 24, textAlign: 'center', marginBottom: 20 },
-  input: { height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 12, paddingHorizontal: 8 },
-  loginText: { color: 'blue', textAlign: 'center', marginTop: 16 },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: '#F5F5F5',
+  },
+  header: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#333',
+    marginBottom: 8,
+  },
+  subHeader: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#666',
+    marginBottom: 20,
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 12,
+  },
+  successText: {
+    color: 'green',
+    marginBottom: 12,
+  },
+  input: {
+    height: 50,
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    fontSize: 16,
+    borderColor: '#DDD',
+    borderWidth: 1,
+  },
+  button: {
+    backgroundColor: '#0066FF',
+    paddingVertical: 15,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  loginText: {
+    fontSize: 14,
+    textAlign: 'center',
+    color: '#333',
+  },
+  loginLink: {
+    color: '#0066FF',
+    fontWeight: 'bold',
+  },
 });
 
 export default SignupScreen;

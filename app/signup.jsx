@@ -30,7 +30,7 @@ const SignupScreen = () => {
       return;
     }
 
-    if (password <= 7) {
+    if (password.length < 7) {
       setPassErrorMessage("* Passwords should be 8 characters long");
       return;
     }

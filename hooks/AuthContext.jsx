@@ -1,5 +1,10 @@
+// Import Firebase and necessary modules
 import React, { createContext, useState, useEffect, useMemo, useContext } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { app } from './../app/firebaseConfig'; // Adjust the path if needed
+
+// Initialize Firebase Auth using the app
+const auth = getAuth(app);
 
 // Create Auth Context
 const AuthContext = createContext();
@@ -8,56 +13,51 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); // Store logged-in user info
   const [loading, setLoading] = useState(true); // Manage loading state
 
-  // Fetch user info from AsyncStorage when the app starts
+  // Fetch user info from Firebase Auth when the app starts
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const storedEmail = await AsyncStorage.getItem('email');
-        const storedPassword = await AsyncStorage.getItem('password');
-        if (storedEmail && storedPassword) {
-          setUser({ email: storedEmail }); // Mock login with stored credentials
-        }
-      } catch (e) {
-        console.error('Failed to load user');
-      } finally {
-        setLoading(false); // Finish loading regardless of success or error
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(null);
       }
-    };
+      setLoading(false); // Finish loading regardless of success or error
+    });
 
-    loadUser();
+    return () => unsubscribe(); // Cleanup on unmount
   }, []);
 
-  // Login function
+  // Login function using Firebase Auth
   const login = async (email, password) => {
-    const storedEmail = await AsyncStorage.getItem('email');
-    const storedPassword = await AsyncStorage.getItem('password');
-
-    if (storedEmail === email && storedPassword === password) {
-      setUser({ email });
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      setUser(userCredential.user);
       return true;
-    } else {
+    } catch (error) {
+      console.error(error);
       return false;
     }
   };
 
-  // Signup function
+  // Signup function using Firebase Auth
   const signup = async (email, password) => {
     try {
-      await AsyncStorage.setItem('email', email);
-      await AsyncStorage.setItem('password', password);
-      setUser({ email });
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      setUser(userCredential.user);
       return true;
-    } catch (e) {
+    } catch (error) {
+      console.error(error);
       return false;
     }
   };
 
-  // Logout function
+  // Logout function using Firebase Auth
   const logout = async () => {
     try {
+      await auth.signOut();
       setUser(null); // Reset user state to null (log out the user)
-    } catch (e) {
-      console.error('Failed to log out');
+    } catch (error) {
+      console.error('Failed to log out:', error);
     }
   };
 
